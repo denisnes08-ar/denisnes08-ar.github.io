@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MindAR Video Example</title>
+  <title>MindAR Scene</title>
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <style>
@@ -24,68 +24,91 @@
   </style>
 </head>
 <body>
-  <a href="model.html" id="switchButton" style="position: absolute; top: 20px; right: 20px; z-index: 10000; padding: 10px; background: white; border-radius: 5px; text-decoration: none; color: black;">
-    Show 3D Model
-  </a>
   <button id="startButton">Start AR</button>
 
-  <a-scene mindar-image="imageTargetSrc: https://denisnes08-ar.github.io/assets/targets.mind; autoStart: false;"
+  <a-scene mindar-image="imageTargetSrc: assets/targets.mind; autoStart: false;"
            color-space="sRGB"
            renderer="colorManagement: true, physicallyCorrectLights"
            vr-mode-ui="enabled: false"
            device-orientation-permission-ui="enabled: false">
     
     <a-assets>
-      <video id="video_clip" loop="false" src="https://denisnes08-ar.github.io/assets/video.mp4"></video>
+      
+        
+          
+            <a-asset-item id="asset-0" src="assets/lana.glb"></a-asset-item>
+          
+        
+      
+        
+          
+            <video id="asset-1" loop="false" src="assets/video.mp4"></video>
+          
+        
+      
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <a-entity id="targetEntity" mindar-image-target="targetIndex: 0">
-      <a-video src="#video_clip" width="1" height="0.552" position="0 0 -0.3" rotation="0 0 0"></a-video>
-    </a-entity>
+    
+      
+        <a-entity class="target-entity" mindar-image-target="targetIndex: 0" data-video-target="false" data-asset-id="#asset-0">
+          
+            <a-gltf-model src="#asset-0" 
+                          scale="0.1 0.1 0.1" 
+                          position="0 0 0" 
+                          rotation="0 0 0">
+            </a-gltf-model>
+          
+        </a-entity>
+      
+    
+      
+        <a-entity class="target-entity" mindar-image-target="targetIndex: 1" data-video-target="true" data-asset-id="#asset-1">
+          
+            <a-video src="#asset-1" 
+                     width="1" 
+                     height="0.552" 
+                     position="0 0 -0.3" 
+                     rotation="0 0 0">
+            </a-video>
+          
+        </a-entity>
+      
+    
   </a-scene>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const startButton = document.getElementById('startButton');
       const sceneEl = document.querySelector('a-scene');
-      const targetEntity = document.querySelector('#targetEntity');
-      const video = document.querySelector('#video_clip');
       let arSystem;
 
       sceneEl.addEventListener('loaded', () => {
         arSystem = sceneEl.systems["mindar-image-system"];
-        console.log("arSystem initialized:", arSystem);
       });
 
       sceneEl.addEventListener("arReady", () => {
-        console.log("MindAR is ready to start");
         startButton.style.display = 'none';
-      });
-
-      sceneEl.addEventListener("arError", (event) => {
-        console.error("Failed to start MindAR:", event);
-        alert("Error: Failed to start AR. Check camera access.");
       });
 
       startButton.addEventListener('click', () => {
         if (arSystem) {
           arSystem.start();
-          console.log("Starting MindAR...");
-        } else {
-          console.warn("arSystem is not initialized - try again");
         }
       });
 
-      targetEntity.addEventListener("targetFound", () => {
-        console.log("Target found, playing video.");
-        video.play();
-      });
-
-      targetEntity.addEventListener("targetLost", () => {
-        console.log("Target lost, pausing video.");
-        video.pause();
+      const targetEntities = document.querySelectorAll('.target-entity');
+      targetEntities.forEach((target) => {
+        if (target.dataset.videoTarget === 'true') {
+          const video = document.querySelector(target.dataset.assetId);
+          target.addEventListener("targetFound", () => {
+            video.play();
+          });
+          target.addEventListener("targetLost", () => {
+            video.pause();
+          });
+        }
       });
     });
   </script>
