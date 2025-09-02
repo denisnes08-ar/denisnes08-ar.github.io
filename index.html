@@ -9,12 +9,12 @@
   </head>
   <body>
     <!-- Это "сцена", где будет происходить вся магия. Важно указать путь к нашему файлу-компиляции -->
-    <a-scene mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene mindar-image="imageTargetSrc: https://denisnes08-ar.github.io/assets/targets.mind; autoStart: true;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       
       <!-- Это наши ресурсы: картинка и видео. Даем им простые имена (id) -->
       <a-assets>
-        <img id="marker_img" src="./assets/marker.jpg" />
-        <video id="video_clip" autoplay="false" loop="true" src="./assets.video.mp4"></video>
+        <img id="marker_img" src="https://denisnes08-ar.github.io/assets/marker.jpeg" />
+        <video id="video_clip" autoplay="false" loop="true" src="https://denisnes08-ar.github.io/assets/video.mp4"></video>
       </a-assets>
 
       <!-- Это "камера", которая будет смотреть на мир -->
@@ -28,21 +28,11 @@
     </a-scene>
 
     <!-- Небольшой скрипт для управления: плей/пауза -->
-    <div id="startButton" style="position: absolute; top: 20px; left: 20px; z-index: 1000; background: white; padding: 10px; border-radius: 5px; cursor: pointer;">
-      Start AR
-    </div>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        const sceneEl = document.querySelector('a-scene');
         const target = document.querySelector('#target');
         const video = document.querySelector('#video_clip');
-        const startButton = document.querySelector('#startButton');
         
-        startButton.addEventListener('click', () => {
-          sceneEl.systems['mindar-image'].start();
-          startButton.style.display = 'none';
-        });
-
         // Когда маркер найден, запускаем видео
         target.addEventListener("targetFound", event => {
           video.play();
