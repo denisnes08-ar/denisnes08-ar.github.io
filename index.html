@@ -35,14 +35,22 @@
     <a-assets>
       
         
+      
+        
           
-            <a-asset-item id="asset-0" src="assets/lana.glb"></a-asset-item>
+            <video id="asset-1" loop="false" src="assets/video.mp4"></video>
           
         
       
         
           
-            <video id="asset-1" loop="false" src="assets/video.mp4"></video>
+            <a-asset-item id="asset-2" src="assets/lana.glb"></a-asset-item>
+          
+        
+      
+        
+          
+            <audio id="asset-3" src="assets/music.mp3" preload="auto"></audio>
           
         
       
@@ -52,9 +60,30 @@
 
     
       
-        <a-entity class="target-entity" mindar-image-target="targetIndex: 0" data-video-target="false" data-asset-id="#asset-0">
+    
+      
+        <a-entity class="target-entity" 
+                  mindar-image-target="targetIndex: 1" 
+                  data-content-type="video"
+                  data-asset-id="#asset-1">
           
-            <a-gltf-model src="#asset-0" 
+            <a-video src="#asset-1" 
+                     width="1" 
+                     height="0.552" 
+                     position="0 0 -0.3" 
+                     rotation="0 0 0">
+            </a-video>
+          
+        </a-entity>
+      
+    
+      
+        <a-entity class="target-entity" 
+                  mindar-image-target="targetIndex: 2" 
+                  data-content-type="model"
+                  data-asset-id="#asset-2">
+          
+            <a-gltf-model src="#asset-2" 
                           scale="0.1 0.1 0.1" 
                           position="0 0 0" 
                           rotation="0 0 0">
@@ -64,14 +93,12 @@
       
     
       
-        <a-entity class="target-entity" mindar-image-target="targetIndex: 1" data-video-target="true" data-asset-id="#asset-1">
+        <a-entity class="target-entity" 
+                  mindar-image-target="targetIndex: 3" 
+                  data-content-type="audio"
+                  data-asset-id="#asset-3">
           
-            <a-video src="#asset-1" 
-                     width="1" 
-                     height="0.552" 
-                     position="0 0 -0.3" 
-                     rotation="0 0 0">
-            </a-video>
+            <a-entity sound="src: #asset-3; volume: 1"></a-entity>
           
         </a-entity>
       
@@ -100,13 +127,15 @@
 
       const targetEntities = document.querySelectorAll('.target-entity');
       targetEntities.forEach((target) => {
-        if (target.dataset.videoTarget === 'true') {
-          const video = document.querySelector(target.dataset.assetId);
+        const contentType = target.dataset.contentType;
+        const assetEl = document.querySelector(target.dataset.assetId);
+
+        if (contentType === 'video' || contentType === 'audio') {
           target.addEventListener("targetFound", () => {
-            video.play();
+            assetEl.play();
           });
           target.addEventListener("targetLost", () => {
-            video.pause();
+            assetEl.pause();
           });
         }
       });
