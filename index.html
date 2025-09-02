@@ -3,80 +3,48 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MindAR A-Frame AR Example</title>
-  <!-- Подключаем A-Frame -->
+  <title>MindAR A-Frame Video AR Example</title>
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-  <!-- Подключаем MindAR для A-Frame -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <style>
-    #startButton {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 15px 30px;
-      font-size: 18px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      z-index: 10000;
-    }
-  </style>
 </head>
 <body>
-  <!-- Кнопка для запуска AR -->
-  <button id="startButton">Start AR</button>
-
-  <!-- Сцена A-Frame с MindAR (автоматический запуск отключён) -->
-  <a-scene mindar-image="imageTargetSrc: https://denisnes08-ar.github.io/assets/targets.mind; autoStart: false;"
+  <!-- Сцена A-Frame с MindAR, автозапуск отключён -->
+  <a-scene mindar-image="imageTargetSrc: https://denisnes08-ar.github.io/assets/targets.mind; autoStart: true;"
            color-space="sRGB"
            renderer="colorManagement: true, physicallyCorrectLights"
            vr-mode-ui="enabled: false"
            device-orientation-permission-ui="enabled: false">
-    <!-- Камера -->
+    <a-assets>
+      <!-- Видео загружается заранее -->
+      <video id="arVideoAsset" src="video.mp4" preload="auto" loop muted playsinline></video>
+    </a-assets>
+
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- AR-целевой объект -->
-    <a-entity id="targetEntity" mindar-image-target="targetIndex: 0">
-      <a-plane color="blue" opacity="0.5" position="0 0 0"
-               height="1" width="1" rotation="0 0 0"></a-plane>
+    <a-entity id="videoTarget" mindar-image-target="targetIndex: 0">
+      <a-video id="arVideo"
+               src="#arVideoAsset"
+               width="1"
+               height="0.5625"
+               position="0 0 0"
+               rotation="0 0 0">
+      </a-video>
     </a-entity>
   </a-scene>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const startButton = document.getElementById('startButton');
-      const sceneEl = document.querySelector('a-scene');
-      let arSystem;
+      const videoAsset = document.getElementById('arVideoAsset');
+      const targetEntity = document.getElementById('videoTarget');
 
-      // Ждём готовности сцены и инициализируем arSystem
-      sceneEl.addEventListener('loaded', () => {
-        arSystem = sceneEl.systems["mindar-image-system"];
-        console.log("arSystem инициализирован:", arSystem);
+      targetEntity.addEventListener('targetFound', () => {
+        console.log('AR target found – playing video');
+        videoAsset.play();
       });
 
-      // Событие: AR–движок готов к запуску
-      sceneEl.addEventListener("arReady", () => {
-        console.log("MindAR готов к старту");
-        startButton.style.display = 'none';
-      });
-
-      // Событие: возникла ошибка при запуске AR (например, камера недоступна)
-      sceneEl.addEventListener("arError", (event) => {
-        console.error("Не удалось запустить MindAR:", event);
-        alert("Ошибка: не удалось запустить AR. Проверьте доступ к камере.");
-      });
-
-      // Обработчик клика по кнопке запуска
-      startButton.addEventListener('click', () => {
-        if (arSystem) {
-          arSystem.start();
-          console.log("Запуск MindAR…");
-        } else {
-          console.warn("arSystem не инициализирован — попробуйте ещё раз");
-        }
+      targetEntity.addEventListener('targetLost', () => {
+        console.log('AR target lost – pausing video');
+        videoAsset.pause();
       });
     });
   </script>
